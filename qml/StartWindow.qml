@@ -38,7 +38,7 @@ ApplicationWindow {
 
         Button {
             id: loadButton
-            text: qsTr("Loade Game")
+            text: qsTr("Load Game")
             width: 180
             height: 50
             anchors.right: parent.right
@@ -47,6 +47,9 @@ ApplicationWindow {
             anchors.rightMargin: startWindow.width/2 - width/2
 
             onClicked: {
+                logic.loadGame();
+                loadWindow.show()
+                startWindow.hide()
             }
         }
 
@@ -67,6 +70,12 @@ ApplicationWindow {
 
     Logic {
         id: logicWindow
+        visible: false
+        title: qsTr("Chess")
+    }
+
+    LoadWindow {
+        id: loadWindow
         visible: false
         title: qsTr("Chess")
     }

@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <QAbstractListModel>
+#include "chess.h"
 
 class Logic: public QAbstractListModel
 {
@@ -25,7 +26,10 @@ public:
     int boardSize() const;
 
     Q_INVOKABLE void clear();
+    Q_INVOKABLE void finish();
     Q_INVOKABLE bool move(int fromX, int fromY, int toX, int toY);
+    Q_INVOKABLE bool loadGame();
+    Q_INVOKABLE void saveGame();
 
 protected:
     int rowCount(const QModelIndex & parent) const override;
@@ -33,6 +37,20 @@ protected:
     QHash<int, QByteArray> roleNames() const override;
 
 private:
+    static int playerNamber;
+    Chess chess;
+public:
+    struct Figure;
     struct Impl;
-    std::unique_ptr<Impl> impl;
+    Impl* impl;
+    QList<Figure> history;
 };
+
+QDataStream& operator<<( QDataStream& d, const QList<Logic::Impl>& l );
+QDataStream& operator<<( QDataStream& d, const Logic::Impl& l );
+QDataStream& operator<<( QDataStream& d, const Logic::Figure& f );
+
+QDataStream& operator>>( QDataStream& d, const QList<Logic::Impl>& h );
+QDataStream& operator>>( QDataStream& d, const Logic::Impl& l );
+QDataStream& operator>>( QDataStream& d, const Logic::Figure& f );
+QDataStream& operator>>( QDataStream& d, const int& n );
