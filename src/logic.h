@@ -43,14 +43,14 @@ public:
     struct Figure;
     struct Impl;
     Impl* impl;
-    QList<Figure> history;
+    QList<QList<Figure>> history;
 };
 
-QDataStream& operator<<( QDataStream& d, const QList<Logic::Impl>& l );
-QDataStream& operator<<( QDataStream& d, const Logic::Impl& l );
+QDataStream& operator<<( QDataStream& d, const QList<QList<Logic::Figure>>& l );
+QDataStream& operator<<( QDataStream& d, const QList<Logic::Figure>& l );
 QDataStream& operator<<( QDataStream& d, const Logic::Figure& f );
 
-QDataStream& operator>>( QDataStream& d, const QList<Logic::Impl>& h );
-QDataStream& operator>>( QDataStream& d, const Logic::Impl& l );
+QDataStream& operator>>( QDataStream& d, const QList<QList<Logic::Figure>>& h );
+QDataStream& operator>>( QDataStream& d, const QList<Logic::Figure>& l );
 QDataStream& operator>>( QDataStream& d, const Logic::Figure& f );
 QDataStream& operator>>( QDataStream& d, const int& n );

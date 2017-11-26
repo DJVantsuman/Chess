@@ -154,16 +154,18 @@ bool Logic::move(int fromX, int fromY, int toX, int toY) {
 }
 
 bool Logic::loadGame() {
-    QFile in("D:\\Qt\\history.bin");
+    qInfo() << "Load\n";
+    QFile in("history.bin");
     if( in.open( QIODevice::ReadOnly ) ) {
+        QList<QList<Figure>> log;
         QDataStream stream( &in );
-        stream >> history;
-//        int size = history.size();
-//        for (int i = 0; i < impl->figures.size(); i++){
-//            impl->figures[i].type = history[size - 1].type;
-//            impl->figures[i].x = history[size - 1].x;
-//            impl->figures[i].y = history[size - 1].y;
-//        }
+        stream >> log;
+        int size = log.size();
+        for (int i = 0; i < impl->figures.size(); i++){
+            impl->figures[i].type = log[size - 1][i].type;
+//            impl->figures[i].x = log[size - 1][i].x;
+//            impl->figures[i].y = log[size - 1][i].y;
+        }
         in.close();
         }
     return true;
@@ -179,17 +181,17 @@ void Logic::saveGame() {
     file.close();
 }
 
-QDataStream& operator<<( QDataStream& d, const QList<Logic::Figure>& l ){
-    for (int i = 0; i < l.size(); i++){
-        d << l[i];
+QDataStream& operator<<( QDataStream& d, const QList<QList<Logic::Figure>>& h ){
+    for (int i = 0; i < h.size(); i++){
+        d << h[i];
     }
     return d;
 }
 
-QDataStream& operator<<( QDataStream& d, const Logic::Impl& l ){
+QDataStream& operator<<( QDataStream& d, const QList<Logic::Figure>& l ){
 
-    for (int i = 0; i < l.figures.size(); i++) {
-        d << l.figures[i];
+    for (int i = 0; i < l.size(); i++) {
+        d << l[i];
     }
     return d;
 }
@@ -199,17 +201,17 @@ QDataStream& operator<<( QDataStream& d, const Logic::Figure& f ){
 }
 
 
-QDataStream& operator>>( QDataStream& d, const QList<Logic::Figure>& h ) {
+QDataStream& operator>>( QDataStream& d, const QList<QList<Logic::Figure>>& h ) {
     for (int i = 0; i < h.size(); i++){
         d >> h[i];
     }
     return d;
 }
 
-QDataStream& operator>>( QDataStream& d, const Logic::Impl& l ){
+QDataStream& operator>>( QDataStream& d, const QList<Logic::Figure>& l ){
 
-    for (int i = 0; i < l.figures.size(); i++) {
-        d >> l.figures[i];
+    for (int i = 0; i < l.size(); i++) {
+        d >> l[i];
     }
     return d;
 }
