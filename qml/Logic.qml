@@ -86,6 +86,7 @@ Window {
               else {
                   playerNamber == 1 ? number1.text = "Player 2" : number1.text = "Player 1";
                   playerNamber = playerNamber == 1 ? 2 : 1;
+                  logic.saveOneStep();
               }
             }
           }

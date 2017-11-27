@@ -30,6 +30,7 @@ public:
     Q_INVOKABLE bool move(int fromX, int fromY, int toX, int toY);
     Q_INVOKABLE bool loadGame();
     Q_INVOKABLE void saveGame();
+    Q_INVOKABLE void saveOneStep();
 
 protected:
     int rowCount(const QModelIndex & parent) const override;
@@ -37,20 +38,22 @@ protected:
     QHash<int, QByteArray> roleNames() const override;
 
 private:
+    struct Figure;
     static int playerNamber;
     Chess chess;
+    void appendStepToHistory(QList<Figure> figures);
 public:
-    struct Figure;
+
     struct Impl;
     Impl* impl;
-    QList<QList<Figure>> history;
+    QList<int> history;
 };
 
-QDataStream& operator<<( QDataStream& d, const QList<QList<Logic::Figure>>& l );
-QDataStream& operator<<( QDataStream& d, const QList<Logic::Figure>& l );
-QDataStream& operator<<( QDataStream& d, const Logic::Figure& f );
+//QDataStream& operator<<( QDataStream& d, const QList<QList<Logic::Figure>>& l );
+//QDataStream& operator<<( QDataStream& d, const QList<Logic::Figure>& l );
+//QDataStream& operator<<( QDataStream& d, const Logic::Figure& f );
 
-QDataStream& operator>>( QDataStream& d, const QList<QList<Logic::Figure>>& h );
-QDataStream& operator>>( QDataStream& d, const QList<Logic::Figure>& l );
-QDataStream& operator>>( QDataStream& d, const Logic::Figure& f );
-QDataStream& operator>>( QDataStream& d, const int& n );
+//QDataStream& operator>>( QDataStream& d, const QList<QList<Logic::Figure>>& h );
+//QDataStream& operator>>( QDataStream& d, const QList<Logic::Figure>& l );
+//QDataStream& operator>>( QDataStream& d, const Logic::Figure& f );
+//QDataStream& operator>>( QDataStream& d, const int& n );

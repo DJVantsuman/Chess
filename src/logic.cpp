@@ -73,6 +73,8 @@ Logic::Logic(QObject *parent)
     impl->figures << Logic::Figure { 9, 7, 7 };
     impl->figures << Logic::Figure { 10, 3, 7 };
     impl->figures << Logic::Figure { 11, 4, 7 };
+
+    saveOneStep();
 }
 
 Logic::~Logic() {
@@ -143,7 +145,6 @@ bool Logic::move(int fromX, int fromY, int toX, int toY) {
   }
 
   playerNamber = playerNamber == 1 ? 2 : 1;
-  history.append(impl->figures);
 
   impl->figures[index].x = toX;
   impl->figures[index].y = toY;
@@ -153,19 +154,36 @@ bool Logic::move(int fromX, int fromY, int toX, int toY) {
   return true;
 }
 
+void Logic::saveOneStep() {
+     appendStepToHistory(impl->figures);
+}
+
+void Logic::appendStepToHistory(QList<Logic::Figure> figures) {
+    for (int i = 0; i < figures.size(); i++)
+    {
+        history << figures[i].type;
+        history << figures[i].x;
+        history << figures[i].y;
+    }
+}
+
 bool Logic::loadGame() {
-    qInfo() << "Load\n";
+    qInfo() << "Load";
     QFile in("history.bin");
     if( in.open( QIODevice::ReadOnly ) ) {
-        QList<QList<Figure>> log;
+        QList<int> log;
+        int t, x, y;
         QDataStream stream( &in );
-        stream >> log;
-        int size = log.size();
-        for (int i = 0; i < impl->figures.size(); i++){
-            impl->figures[i].type = log[size - 1][i].type;
+        for (int i = 0; !in.atEnd(); i += 3) {
+            stream >> t >> x >> y;
+             qDebug() << "Debag : " << t << " " << x << " " << y;
+        }
+//        int size = log.size();
+//        for (int i = size; i > size-96; i++){
+//            impl->figures[i].type = log[size - 1][i].type;
 //            impl->figures[i].x = log[size - 1][i].x;
 //            impl->figures[i].y = log[size - 1][i].y;
-        }
+//        }
         in.close();
         }
     return true;
@@ -176,52 +194,55 @@ void Logic::saveGame() {
     if(file.open(QIODevice::WriteOnly)) {
         QDataStream stream(&file);
         stream. setVersion(QDataStream::Qt_5_6);
-        stream << history;
+        for (int i = 0; i < history.size(); i++)
+            stream << history[i];
+//        stream << history;
     }
     file.close();
 }
 
-QDataStream& operator<<( QDataStream& d, const QList<QList<Logic::Figure>>& h ){
+QDataStream& operator<<( QDataStream& d, const QList<int>& h ){
     for (int i = 0; i < h.size(); i++){
         d << h[i];
+        qDebug() << "Debag : " << h[i];
     }
     return d;
 }
 
-QDataStream& operator<<( QDataStream& d, const QList<Logic::Figure>& l ){
+//QDataStream& operator<<( QDataStream& d, const QList<Logic::Figure>& l ){
 
-    for (int i = 0; i < l.size(); i++) {
-        d << l[i];
-    }
-    return d;
-}
+//    for (int i = 0; i < l.size(); i++) {
+//        d << l[i];
+//    }
+//    return d;
+//}
 
-QDataStream& operator<<( QDataStream& d, const Logic::Figure& f ){
-    return d << f.type << f.x << f.y;
-}
+//QDataStream& operator<<( QDataStream& d, const Logic::Figure& f ){
+//    return d << f.type << f.x << f.y;
+//}
 
 
-QDataStream& operator>>( QDataStream& d, const QList<QList<Logic::Figure>>& h ) {
-    for (int i = 0; i < h.size(); i++){
-        d >> h[i];
-    }
-    return d;
-}
+//QDataStream& operator>>( QDataStream& d, const QList<QList<Logic::Figure>>& h ) {
+//    for (int i = 0; i < h.size(); i++){
+//        d >> h[i];
+//    }
+//    return d;
+//}
 
-QDataStream& operator>>( QDataStream& d, const QList<Logic::Figure>& l ){
+//QDataStream& operator>>( QDataStream& d, const QList<Logic::Figure>& l ){
 
-    for (int i = 0; i < l.size(); i++) {
-        d >> l[i];
-    }
-    return d;
-}
+//    for (int i = 0; i < l.size(); i++) {
+//        d >> l[i];
+//    }
+//    return d;
+//}
 
-QDataStream& operator>>( QDataStream& d, const Logic::Figure& f ){
-    d >> f.type >> f.x >> f.y;
-    return d;
-}
+//QDataStream& operator>>( QDataStream& d, const Logic::Figure& f ){
+//    d >> f.type >> f.x >> f.y;
+//    return d;
+//}
 
-QDataStream& operator>>( QDataStream& d, const int& n ){
-    d >> n;
-    return d;
-}
+//QDataStream& operator>>( QDataStream& d, const int& n ){
+//    d >> n;
+//    return d;
+//}
