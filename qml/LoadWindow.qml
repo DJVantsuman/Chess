@@ -44,7 +44,6 @@ Window {
         width: gameBoard.width
       }
 
-
       Repeater {
         model: logic
 
@@ -57,35 +56,6 @@ Window {
           y: squareSize * positionY
 
           source: images[type].imgPath
-
-   /*       MouseArea {
-            anchors.fill: parent
-            drag.target: parent
-
-            property int startX: 0
-            property int startY: 0
-
-            onPressed: {
-              startX = parent.x;
-              startY = parent.y;
-            }
-
-            onReleased: {
-              var fromX = startX / squareSize;
-              var fromY = startY / squareSize;
-              var toX   = (parent.x + mouseX) / squareSize;
-              var toY   = (parent.y + mouseY) / squareSize;
-
-              if (!logic.move(fromX, fromY, toX, toY)) {
-                parent.x = startX;
-                parent.y = startY;
-              }
-              else {
-                  playerNamber == 1 ? number1.text = "Player 2" : number1.text = "Player 1";
-                  playerNamber = playerNamber == 1 ? 2 : 1;
-              }
-            }
-          } */
         }
       }
     }
@@ -101,7 +71,7 @@ Window {
       anchors.topMargin: 20
 
       onClicked: {
-
+          logic.prevStep();
       }
     }
 
@@ -116,7 +86,7 @@ Window {
       anchors.topMargin: 20
 
       onClicked: {
-
+          logic.nextStep();
       }
     }
 
@@ -131,8 +101,8 @@ Window {
       anchors.topMargin: 80
 
       onClicked: {
-        logicWindow.show()
-        loadWindow.hide()
+          logicWindow.show()
+          loadWindow.hide()
       }
     }
 

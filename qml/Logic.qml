@@ -15,7 +15,9 @@ Window {
     minimumHeight: height
     minimumWidth: width
 
-    property int playerNamber: 1
+    property int playerNamber: logic.getPlayerNamber();
+    property var p1: "Player 1"
+    property var p2: "Player 2"
 
     property int squareSize: 70
 
@@ -84,7 +86,6 @@ Window {
                 parent.y = startY;
               }
               else {
-                  playerNamber == 1 ? number1.text = "Player 2" : number1.text = "Player 1";
                   playerNamber = playerNamber == 1 ? 2 : 1;
                   logic.saveOneStep();
               }
@@ -107,7 +108,7 @@ Window {
             id: number1;
             font.pixelSize : 20
             anchors.centerIn: parent
-            text: qsTr("Player 1")
+            text: qsTr(playerNamber === 1 ? p1 : p2)
         }
     }
 

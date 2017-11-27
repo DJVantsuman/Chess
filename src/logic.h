@@ -2,6 +2,7 @@
 #include <memory>
 #include <QAbstractListModel>
 #include "chess.h"
+#include "memento.h"
 
 class Logic: public QAbstractListModel
 {
@@ -28,9 +29,15 @@ public:
     Q_INVOKABLE void clear();
     Q_INVOKABLE void finish();
     Q_INVOKABLE bool move(int fromX, int fromY, int toX, int toY);
-    Q_INVOKABLE bool loadGame();
+    Q_INVOKABLE void loadGame();
     Q_INVOKABLE void saveGame();
     Q_INVOKABLE void saveOneStep();
+    Q_INVOKABLE void updateImpl();
+    Q_INVOKABLE void prevStep();
+    Q_INVOKABLE void nextStep();
+    Q_INVOKABLE int getPlayerNamber() const;
+    Q_INVOKABLE void startNewGame();
+
 
 protected:
     int rowCount(const QModelIndex & parent) const override;
@@ -38,22 +45,16 @@ protected:
     QHash<int, QByteArray> roleNames() const override;
 
 private:
+    int numberSteps;
     struct Figure;
-    static int playerNamber;
+    Q_INVOKABLE int playerNamber;
     Chess chess;
+    Memento memento;
     void appendStepToHistory(QList<Figure> figures);
-public:
+    void newGame(QList<Figure> & figures);
 
+public:
     struct Impl;
     Impl* impl;
     QList<int> history;
 };
-
-//QDataStream& operator<<( QDataStream& d, const QList<QList<Logic::Figure>>& l );
-//QDataStream& operator<<( QDataStream& d, const QList<Logic::Figure>& l );
-//QDataStream& operator<<( QDataStream& d, const Logic::Figure& f );
-
-//QDataStream& operator>>( QDataStream& d, const QList<QList<Logic::Figure>>& h );
-//QDataStream& operator>>( QDataStream& d, const QList<Logic::Figure>& l );
-//QDataStream& operator>>( QDataStream& d, const Logic::Figure& f );
-//QDataStream& operator>>( QDataStream& d, const int& n );

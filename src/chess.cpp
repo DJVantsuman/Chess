@@ -25,8 +25,10 @@ int Chess::checkFigurePosition(int toX, int toY, int x, int y, int type) {
 }
 
 int Chess::checkPawn(int toX, int toY, int x, int y, int type) {
-        if ((type == 0 && (x != toX || y >= toY)) ||
-               (type == 6 && (x != toX || y <= toY)))
+        if ((type == 0 && (x != toX || y >= toY )) ||
+               (type == 6 && (x != toX || y <= toY)) ||
+            (type == 0 && y == 1 && toY > 3) ||
+                (type == 6 && y == 6 && toY < 4))
             return -1;
     return 1;
 }

@@ -31,6 +31,7 @@ ApplicationWindow {
             anchors.rightMargin: startWindow.width/2 - width/2
 
             onClicked: {
+                logic.startNewGame()
                 logicWindow.show()
                 startWindow.hide()
             }

@@ -9,8 +9,6 @@
 #include <QFile>
 #include <QDebug>
 
-int Logic::playerNamber = 1;
-
 struct Logic::Figure
 {
   int type;
@@ -39,45 +37,67 @@ Logic::Logic(QObject *parent)
     : QAbstractListModel(parent)
   , impl(new Impl())
 {
-    impl->figures << Logic::Figure { 0, 0, 1 };
-    impl->figures << Logic::Figure { 0, 1, 1 };
-    impl->figures << Logic::Figure { 0, 2, 1 };
-    impl->figures << Logic::Figure { 0, 3, 1 };
-    impl->figures << Logic::Figure { 0, 4, 1 };
-    impl->figures << Logic::Figure { 0, 5, 1 };
-    impl->figures << Logic::Figure { 0, 6, 1 };
-    impl->figures << Logic::Figure { 0, 7, 1 };
-    impl->figures << Logic::Figure { 1, 1, 0 };
-    impl->figures << Logic::Figure { 1, 6, 0 };
-    impl->figures << Logic::Figure { 2, 2, 0 };
-    impl->figures << Logic::Figure { 2, 5, 0 };
-    impl->figures << Logic::Figure { 3, 0, 0 };
-    impl->figures << Logic::Figure { 3, 7, 0 };
-    impl->figures << Logic::Figure { 4, 3, 0 };
-    impl->figures << Logic::Figure { 5, 4, 0 };
-
-
-    impl->figures << Logic::Figure { 6, 0, 6 };
-    impl->figures << Logic::Figure { 6, 1, 6 };
-    impl->figures << Logic::Figure { 6, 2, 6 };
-    impl->figures << Logic::Figure { 6, 3, 6 };
-    impl->figures << Logic::Figure { 6, 4, 6 };
-    impl->figures << Logic::Figure { 6, 5, 6 };
-    impl->figures << Logic::Figure { 6, 6, 6 };
-    impl->figures << Logic::Figure { 6, 7, 6 };
-    impl->figures << Logic::Figure { 7, 1, 7 };
-    impl->figures << Logic::Figure { 7, 6, 7 };
-    impl->figures << Logic::Figure { 8, 2, 7 };
-    impl->figures << Logic::Figure { 8, 5, 7 };
-    impl->figures << Logic::Figure { 9, 0, 7 };
-    impl->figures << Logic::Figure { 9, 7, 7 };
-    impl->figures << Logic::Figure { 10, 3, 7 };
-    impl->figures << Logic::Figure { 11, 4, 7 };
-
-    saveOneStep();
+    newGame(impl->figures);
+    playerNamber = 1;
 }
 
 Logic::~Logic() {
+}
+
+void Logic::newGame(QList<Logic::Figure> & figures) {
+
+    figures << Logic::Figure { 0, 0, 1 };
+    figures << Logic::Figure { 0, 1, 1 };
+    figures << Logic::Figure { 0, 2, 1 };
+    figures << Logic::Figure { 0, 3, 1 };
+    figures << Logic::Figure { 0, 4, 1 };
+    figures << Logic::Figure { 0, 5, 1 };
+    figures << Logic::Figure { 0, 6, 1 };
+    figures << Logic::Figure { 0, 7, 1 };
+    figures << Logic::Figure { 1, 1, 0 };
+    figures << Logic::Figure { 1, 6, 0 };
+    figures << Logic::Figure { 2, 2, 0 };
+    figures << Logic::Figure { 2, 5, 0 };
+    figures << Logic::Figure { 3, 0, 0 };
+    figures << Logic::Figure { 3, 7, 0 };
+    figures << Logic::Figure { 4, 3, 0 };
+    figures << Logic::Figure { 5, 4, 0 };
+
+
+    figures << Logic::Figure { 6, 0, 6 };
+    figures << Logic::Figure { 6, 1, 6 };
+    figures << Logic::Figure { 6, 2, 6 };
+    figures << Logic::Figure { 6, 3, 6 };
+    figures << Logic::Figure { 6, 4, 6 };
+    figures << Logic::Figure { 6, 5, 6 };
+    figures << Logic::Figure { 6, 6, 6 };
+    figures << Logic::Figure { 6, 7, 6 };
+    figures << Logic::Figure { 7, 1, 7 };
+    figures << Logic::Figure { 7, 6, 7 };
+    figures << Logic::Figure { 8, 2, 7 };
+    figures << Logic::Figure { 8, 5, 7 };
+    figures << Logic::Figure { 9, 0, 7 };
+    figures << Logic::Figure { 9, 7, 7 };
+    figures << Logic::Figure { 10, 3, 7 };
+    figures << Logic::Figure { 11, 4, 7 };
+
+    if (history.isEmpty())
+        saveOneStep();
+}
+
+void Logic::startNewGame() {
+    if (!history.isEmpty())
+        history.clear();
+    impl->figures.clear();
+    newGame(impl->figures);
+    int index;
+    for(int i = 0; i < impl->figures.size(); i++)
+    {
+        index = impl->findByPosition(impl->figures[i].x, impl->figures[i].y);
+        QModelIndex topLeft = createIndex(index, 0);
+        QModelIndex bottomRight = createIndex(index, 0);
+        emit dataChanged(topLeft, bottomRight);
+    }
 }
 
 int Logic::boardSize() const {
@@ -167,82 +187,65 @@ void Logic::appendStepToHistory(QList<Logic::Figure> figures) {
     }
 }
 
-bool Logic::loadGame() {
-    qInfo() << "Load";
-    QFile in("history.bin");
-    if( in.open( QIODevice::ReadOnly ) ) {
-        QList<int> log;
-        int t, x, y;
-        QDataStream stream( &in );
-        for (int i = 0; !in.atEnd(); i += 3) {
-            stream >> t >> x >> y;
-             qDebug() << "Debag : " << t << " " << x << " " << y;
-        }
-//        int size = log.size();
-//        for (int i = size; i > size-96; i++){
-//            impl->figures[i].type = log[size - 1][i].type;
-//            impl->figures[i].x = log[size - 1][i].x;
-//            impl->figures[i].y = log[size - 1][i].y;
-//        }
-        in.close();
-        }
-    return true;
+void Logic::loadGame() {
+    QList<int> log = memento.getState();
+    history.clear();
+    for (int i = 0; i < log.size() - 3; i += 3){
+        history << log[i];
+        history << log[i + 1];
+        history << log[i + 2];
+    }
+    playerNamber = log[log.size() - 1];
+    numberSteps = history.size() / 96;
+//    qDebug() << "Number steps : " << numberSteps;
+    updateImpl();
+}
+
+void Logic::updateImpl() {
+//    qDebug() << "Update impl : " << numberSteps;
+    if (numberSteps > history.size() / 96)
+        return;
+    int i = 96 * numberSteps - 1;
+    int index;
+    for(int j = 32 - 1; j >= 0; j--, i -= 3)
+    {
+        impl->figures[j].y = history[i];
+        impl->figures[j].x = history[i - 1];
+        impl->figures[j].type = history[i - 2];
+
+        index = impl->findByPosition(impl->figures[j].x, impl->figures[j].y);
+        QModelIndex topLeft = createIndex(index, 0);
+        QModelIndex bottomRight = createIndex(index, 0);
+        emit dataChanged(topLeft, bottomRight);
+    }
+}
+
+int Logic::getPlayerNamber() const {
+    return playerNamber;
 }
 
 void Logic::saveGame() {
-    QFile file("history.bin");
-    if(file.open(QIODevice::WriteOnly)) {
-        QDataStream stream(&file);
-        stream. setVersion(QDataStream::Qt_5_6);
-        for (int i = 0; i < history.size(); i++)
-            stream << history[i];
-//        stream << history;
-    }
-    file.close();
+    memento.setState(history, playerNamber);
 }
 
-QDataStream& operator<<( QDataStream& d, const QList<int>& h ){
-    for (int i = 0; i < h.size(); i++){
-        d << h[i];
-        qDebug() << "Debag : " << h[i];
+void Logic::nextStep() {
+    if (numberSteps >= history.size() / 96)
+        return;
+    else
+    {
+        playerNamber = playerNamber == 1 ? 2 : 1;
+        numberSteps++;
+        updateImpl();
     }
-    return d;
 }
 
-//QDataStream& operator<<( QDataStream& d, const QList<Logic::Figure>& l ){
-
-//    for (int i = 0; i < l.size(); i++) {
-//        d << l[i];
-//    }
-//    return d;
-//}
-
-//QDataStream& operator<<( QDataStream& d, const Logic::Figure& f ){
-//    return d << f.type << f.x << f.y;
-//}
-
-
-//QDataStream& operator>>( QDataStream& d, const QList<QList<Logic::Figure>>& h ) {
-//    for (int i = 0; i < h.size(); i++){
-//        d >> h[i];
-//    }
-//    return d;
-//}
-
-//QDataStream& operator>>( QDataStream& d, const QList<Logic::Figure>& l ){
-
-//    for (int i = 0; i < l.size(); i++) {
-//        d >> l[i];
-//    }
-//    return d;
-//}
-
-//QDataStream& operator>>( QDataStream& d, const Logic::Figure& f ){
-//    d >> f.type >> f.x >> f.y;
-//    return d;
-//}
-
-//QDataStream& operator>>( QDataStream& d, const int& n ){
-//    d >> n;
-//    return d;
-//}
+void Logic::prevStep() {
+    if (numberSteps <= 1)
+        return;
+    else
+    {
+        playerNamber = playerNamber == 1 ? 2 : 1;
+        numberSteps--;
+        updateImpl();
+    }
+}
