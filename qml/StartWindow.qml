@@ -1,10 +1,8 @@
 import QtQuick 2.4
 import QtQuick.Controls 1.3
-import QtQuick.Layouts 1.1
-import QtQuick.Dialogs 1.2
+import QtQuick.Window 2.2
 
-ApplicationWindow {
-
+Window {
     id: startWindow
     visible: true
     width: 800
@@ -72,12 +70,10 @@ ApplicationWindow {
     Logic {
         id: logicWindow
         visible: false
-        title: qsTr("Chess")
     }
 
     LoadWindow {
         id: loadWindow
         visible: false
-        title: qsTr("Chess")
     }
 }

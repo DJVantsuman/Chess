@@ -8,7 +8,9 @@ Memento::~Memento() {
 
 }
 
-void Memento::loadHistory() {
+bool Memento::loadHistory() {
+    if (!_state.isEmpty())
+        _state.clear();
     QFile in("history.bin");
     if( in.open( QIODevice::ReadOnly ) ) {
         int t, x, y;
@@ -20,22 +22,27 @@ void Memento::loadHistory() {
              _state << y;
         }
         in.close();
-        }
+        return true;
+    }
+    return false;
 }
 
 void Memento::setState(QList<int> log, int playerNamber) {
-        QFile file("history.bin");
-        if(file.open(QIODevice::WriteOnly)) {
-            QDataStream stream(&file);
-            stream. setVersion(QDataStream::Qt_5_6);
-            for (int i = 0; i < log.size(); i++)
-                stream << log[i];
-            stream << playerNamber << playerNamber << playerNamber;
-        }
-        file.close();
+    QFile file("history.bin");
+    if(file.open(QIODevice::WriteOnly)) {
+        QDataStream stream(&file);
+        stream. setVersion(QDataStream::Qt_5_6);
+        for (int i = 0; i < log.size(); i++)
+            stream << log[i];
+        stream << playerNamber << playerNamber << playerNamber;
+    }
+    file.close();
 }
 
-QList<int> Memento::getState() {
-    loadHistory();
-    return _state;
+bool Memento::getState(QList<int> & log) {
+    if(loadHistory()) {
+        log = _state;
+        return true;
+    }
+    return false;
 }

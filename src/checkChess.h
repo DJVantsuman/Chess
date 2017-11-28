@@ -1,8 +1,8 @@
-#ifndef CHESS_H
-#define CHESS_H
+#ifndef CHECKCHESS_H
+#define CHECKCHESS_H
 
 
-class Chess
+class CheckChess
 {
 private:
     int checkPawn(int toX, int toY, int x, int y, int type);
@@ -12,8 +12,8 @@ private:
     int checkQueen(int toX, int toY, int x, int y);
     int checkKing(int toX, int toY, int x, int y);
 public:
-    Chess();
-    ~Chess();
+    CheckChess();
+    ~CheckChess();
     int checkFigurePosition(int toX, int toY, int x, int y, int type);
 };
 

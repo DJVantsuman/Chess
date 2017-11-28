@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <QAbstractListModel>
-#include "chess.h"
+#include "checkChess.h"
 #include "memento.h"
 
 class Logic: public QAbstractListModel
@@ -31,13 +31,11 @@ public:
     Q_INVOKABLE bool move(int fromX, int fromY, int toX, int toY);
     Q_INVOKABLE void loadGame();
     Q_INVOKABLE void saveGame();
-    Q_INVOKABLE void saveOneStep();
+    Q_INVOKABLE void saveStep();
     Q_INVOKABLE void updateImpl();
     Q_INVOKABLE void prevStep();
     Q_INVOKABLE void nextStep();
-    Q_INVOKABLE int getPlayerNamber() const;
     Q_INVOKABLE void startNewGame();
-
 
 protected:
     int rowCount(const QModelIndex & parent) const override;
@@ -46,15 +44,13 @@ protected:
 
 private:
     int numberSteps;
+    int playerNamber;
     struct Figure;
-    Q_INVOKABLE int playerNamber;
-    Chess chess;
-    Memento memento;
-    void appendStepToHistory(QList<Figure> figures);
-    void newGame(QList<Figure> & figures);
-
-public:
     struct Impl;
     Impl* impl;
+    CheckChess checkChess;
+    Memento memento;
     QList<int> history;
+    void appendStepToHistory(QList<Figure> figures);
+    void newGame(QList<Figure> & figures);
 };

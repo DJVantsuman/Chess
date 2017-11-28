@@ -1,14 +1,14 @@
-#include "chess.h"
+#include "checkChess.h"
 
-Chess::Chess() {
-
-}
-
-Chess::~Chess(){
+CheckChess::CheckChess() {
 
 }
 
-int Chess::checkFigurePosition(int toX, int toY, int x, int y, int type) {
+CheckChess::~CheckChess(){
+
+}
+
+int CheckChess::checkFigurePosition(int toX, int toY, int x, int y, int type) {
     if (type == 0 || type == 6)
         return checkPawn(toX, toY, x, y, type);
     else if (type == 1 || type == 7)
@@ -24,16 +24,17 @@ int Chess::checkFigurePosition(int toX, int toY, int x, int y, int type) {
     return 1;
 }
 
-int Chess::checkPawn(int toX, int toY, int x, int y, int type) {
-        if ((type == 0 && (x != toX || y >= toY )) ||
-               (type == 6 && (x != toX || y <= toY)) ||
-            (type == 0 && y == 1 && toY > 3) ||
-                (type == 6 && y == 6 && toY < 4))
-            return -1;
+int CheckChess::checkPawn(int toX, int toY, int x, int y, int type) {
+    if ((type == 0 && (x != toX || y >= toY )) || (type == 6 && (x != toX || y <= toY)))
+        return -1;
+    if((type == 0 && y == 1 && toY > 3) || (type == 6 && y == 6 && toY < 4))
+        return -1;
+    if((type == 0 && y > 1 && (toY - y) > 1) || (type == 6 && y < 6 && (y - toY) > 1))
+        return -1;
     return 1;
 }
 
-int Chess::checkKnight(int toX, int toY, int x, int y) {
+int CheckChess::checkKnight(int toX, int toY, int x, int y) {
     if (x - 2 == toX || x + 2 == toX){
         if (y + 1 == toY || y - 1 == toY)
             return 1;
@@ -45,7 +46,7 @@ int Chess::checkKnight(int toX, int toY, int x, int y) {
     return -1;
 }
 
-int Chess::checkRook(int toX, int toY, int x, int y) {
+int CheckChess::checkRook(int toX, int toY, int x, int y) {
     if (y > toY && ((y - toY == toX - x) || (y - toY == x - toX)))
         return 1;
     else if (y < toY && ((toY - y == toX - x) || (toY - y == x - toX)))
@@ -53,13 +54,13 @@ int Chess::checkRook(int toX, int toY, int x, int y) {
     return -1;
 }
 
-int Chess::checkBishop(int toX, int toY, int x, int y) {
+int CheckChess::checkBishop(int toX, int toY, int x, int y) {
     if ((x != toX && y == toY) ||  (x == toX && y != toY))
         return 1;
     return -1;
 }
 
-int Chess::checkQueen(int toX, int toY, int x, int y) {
+int CheckChess::checkQueen(int toX, int toY, int x, int y) {
     if (y > toY && ((y - toY == toX - x) || (y - toY == x - toX)))
         return 1;
     else if (y < toY && ((toY - y == toX - x) || (toY - y == x - toX)))
@@ -69,7 +70,7 @@ int Chess::checkQueen(int toX, int toY, int x, int y) {
     return -1;
 }
 
-int Chess::checkKing(int toX, int toY, int x, int y) {
+int CheckChess::checkKing(int toX, int toY, int x, int y) {
     if ((((x + 1 == toX || x - 1 == toX) && y == toY)) ||
             (x == toX && (y + 1 == toY || y - 1 == toY)))
             return 1;

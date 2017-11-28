@@ -1,5 +1,5 @@
 #include "logic.h"
-#include "chess.h"
+#include "checkChess.h"
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("logic", &logic);
-    engine.load(QUrl(QStringLiteral("qrc:/qml/StartWindow.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
     return app.exec();
 }

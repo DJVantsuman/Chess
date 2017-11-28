@@ -46,6 +46,7 @@ Logic::~Logic() {
 
 void Logic::newGame(QList<Logic::Figure> & figures) {
 
+    beginInsertRows(QModelIndex(), 0, 31);
     figures << Logic::Figure { 0, 0, 1 };
     figures << Logic::Figure { 0, 1, 1 };
     figures << Logic::Figure { 0, 2, 1 };
@@ -63,7 +64,6 @@ void Logic::newGame(QList<Logic::Figure> & figures) {
     figures << Logic::Figure { 4, 3, 0 };
     figures << Logic::Figure { 5, 4, 0 };
 
-
     figures << Logic::Figure { 6, 0, 6 };
     figures << Logic::Figure { 6, 1, 6 };
     figures << Logic::Figure { 6, 2, 6 };
@@ -80,24 +80,17 @@ void Logic::newGame(QList<Logic::Figure> & figures) {
     figures << Logic::Figure { 9, 7, 7 };
     figures << Logic::Figure { 10, 3, 7 };
     figures << Logic::Figure { 11, 4, 7 };
+    endInsertRows();
 
     if (history.isEmpty())
-        saveOneStep();
+        appendStepToHistory(impl->figures);
+    playerNamber = 1;
 }
 
 void Logic::startNewGame() {
-    if (!history.isEmpty())
-        history.clear();
-    impl->figures.clear();
+    history.clear();
+    clear();
     newGame(impl->figures);
-    int index;
-    for(int i = 0; i < impl->figures.size(); i++)
-    {
-        index = impl->findByPosition(impl->figures[i].x, impl->figures[i].y);
-        QModelIndex topLeft = createIndex(index, 0);
-        QModelIndex bottomRight = createIndex(index, 0);
-        emit dataChanged(topLeft, bottomRight);
-    }
 }
 
 int Logic::boardSize() const {
@@ -144,9 +137,7 @@ void Logic::clear() {
 }
 
 void Logic::finish() {
-    beginResetModel();
-    impl->figures.clear();
-    endResetModel();
+    clear();
     QApplication::quit();
 }
 
@@ -154,12 +145,15 @@ bool Logic::move(int fromX, int fromY, int toX, int toY) {
   int index = impl->findByPosition(fromX, fromY);
 
   if (index < 0) return false;
-  if (playerNamber == 1 && impl->figures[index].type > 5 ) return false;
-  if (playerNamber == 2 && impl->figures[index].type < 6 ) return false;
+  if (playerNamber == 1 && impl->figures[index].type > 5 )
+      return false;
+  if (playerNamber == 2 && impl->figures[index].type < 6 )
+      return false;
 
-  int n = chess.checkFigurePosition(toX, toY, impl->figures[index].x, impl->figures[index].y, impl->figures[index].type);
-  if (n < 0) return false;
+  int n = checkChess.checkFigurePosition(toX, toY, impl->figures[index].x, impl->figures[index].y, impl->figures[index].type);
 
+  if (n < 0)
+      return false;
   if (toX < 0 || toX >= BOARD_SIZE || toY < 0 || toY >= BOARD_SIZE || impl->findByPosition(toX, toY) >= 0) {
     return false;
   }
@@ -174,8 +168,8 @@ bool Logic::move(int fromX, int fromY, int toX, int toY) {
   return true;
 }
 
-void Logic::saveOneStep() {
-     appendStepToHistory(impl->figures);
+void Logic::saveStep() {
+    appendStepToHistory(impl->figures);
 }
 
 void Logic::appendStepToHistory(QList<Logic::Figure> figures) {
@@ -188,21 +182,23 @@ void Logic::appendStepToHistory(QList<Logic::Figure> figures) {
 }
 
 void Logic::loadGame() {
-    QList<int> log = memento.getState();
-    history.clear();
-    for (int i = 0; i < log.size() - 3; i += 3){
-        history << log[i];
-        history << log[i + 1];
-        history << log[i + 2];
+    QList<int> log;
+    if(memento.getState(log)) {
+        history.clear();
+        for (int i = 0; i < log.size() - 3; i += 3){
+            history << log[i];
+            history << log[i + 1];
+            history << log[i + 2];
+        }
+        playerNamber = log[log.size() - 1];
+        numberSteps = history.size() / 96;
+        updateImpl();
     }
-    playerNamber = log[log.size() - 1];
-    numberSteps = history.size() / 96;
-//    qDebug() << "Number steps : " << numberSteps;
-    updateImpl();
+    else
+        startNewGame();
 }
 
 void Logic::updateImpl() {
-//    qDebug() << "Update impl : " << numberSteps;
     if (numberSteps > history.size() / 96)
         return;
     int i = 96 * numberSteps - 1;
@@ -218,10 +214,6 @@ void Logic::updateImpl() {
         QModelIndex bottomRight = createIndex(index, 0);
         emit dataChanged(topLeft, bottomRight);
     }
-}
-
-int Logic::getPlayerNamber() const {
-    return playerNamber;
 }
 
 void Logic::saveGame() {

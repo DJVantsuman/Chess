@@ -15,10 +15,10 @@ public:
     ~Memento();
 private:
     QList<int> _state;
-    void loadHistory();
+    bool loadHistory();
 public:
     void setState(QList<int> log, int playerNamber);
-    QList<int> getState();
+    bool getState(QList<int> & log);
 };
 
 #endif // MEMENTO_H
